@@ -1,6 +1,6 @@
 {
   "name": "@billpeet/mssql-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MSSQL CLI tool for AI agent and developer use",
   "author": "billpeet",
   "license": "MIT",

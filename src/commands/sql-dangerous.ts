@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { readFileSync } from 'fs';
 import { getConfig, resolveServer, DEFAULT_MAX_ROWS } from '../config/store';
 import { createClient } from '../db/client';
 
@@ -23,11 +24,34 @@ export function registerSqlDangerous(program: Command): void {
     .description(
       'Run a SQL command that may modify data or schema (INSERT, UPDATE, DELETE, DROP, CREATE, etc.) — USE WITH CAUTION'
     )
-    .requiredOption('--query <sql>', 'SQL query or statement to execute')
+    .option('--query <sql>', 'SQL query or statement to execute (inline)')
+    .option('--file <path>', 'Path to a .sql file to execute')
     .option('--server <name>', 'Server alias to use (default: configured default server)')
     .option('--format <format>', 'Output format: json or text', 'json')
     .option('--pretty', 'Pretty-print JSON output')
     .action(async (opts) => {
+      if (!opts.query && !opts.file) {
+        process.stderr.write(JSON.stringify({ error: 'Either --query or --file is required.' }) + '\n');
+        process.exit(1);
+      }
+      if (opts.query && opts.file) {
+        process.stderr.write(JSON.stringify({ error: 'Specify either --query or --file, not both.' }) + '\n');
+        process.exit(1);
+      }
+
+      let sql: string;
+      if (opts.file) {
+        try {
+          sql = readFileSync(opts.file, 'utf8');
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          process.stderr.write(JSON.stringify({ error: 'Failed to read SQL file', details: message }) + '\n');
+          process.exit(1);
+        }
+      } else {
+        sql = opts.query;
+      }
+
       const config = getConfig();
       const { name, serverConfig } = resolveServer(opts, config);
       const maxRows = config.maxRows ?? DEFAULT_MAX_ROWS;
@@ -44,7 +68,7 @@ export function registerSqlDangerous(program: Command): void {
       }
 
       try {
-        const result = await client.query(opts.query);
+        const result = await client.query(sql);
         const rows = result.recordset ?? [];
         const totalRows = rows.length;
         const truncated = totalRows > maxRows;
