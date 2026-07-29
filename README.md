@@ -2,20 +2,13 @@
 
 A Microsoft SQL Server CLI tool designed for AI agent use and automation scripts. Outputs JSON by default, accepts all input via flags (no interactive prompts), and enforces a read-only mode for safe query execution.
 
-## Installation
+## Install and set up the CLI
+
+Requires Node.js 18 or later.
 
 ```bash
-npm install -g @billpeet/mssql-cli
+npm install -g @billpeet/mssql-cli@latest
 ```
-
-Or run locally without installing:
-
-```bash
-npm run build
-node bin/mssql.js --help
-```
-
-## Setup
 
 Add a server configuration (connection is tested before saving):
 
@@ -24,6 +17,32 @@ mssql server add --name prod --server myserver.database.windows.net --database M
 ```
 
 Config is saved to `~/.config/mssql-cli/config.json`. The first server added is automatically set as the default.
+
+Confirm the CLI is ready:
+
+```bash
+mssql server test --name prod --format text
+```
+
+## Install the agent skill
+
+This repository includes an [Agent Skill](skills/mssql/SKILL.md) that teaches supported coding agents how to use the CLI safely. Install it with the [skills.sh CLI](https://skills.sh/docs/cli):
+
+```bash
+npx skills add billpeet/mssql-cli --skill mssql
+```
+
+The installer prompts for the target agent and whether to install the skill for the current project or globally. To install it globally for a specific agent without prompts, use:
+
+```bash
+# Codex
+npx skills add billpeet/mssql-cli --skill mssql --agent codex --global --yes
+
+# Claude Code
+npx skills add billpeet/mssql-cli --skill mssql --agent claude-code --global --yes
+```
+
+Restart the agent after installation so it discovers the skill.
 
 ## Environment Variables
 
