@@ -45,7 +45,7 @@ export MSSQL_WINDOWS_AUTH=true  # optional, use instead of user/password
 ### List configured servers
 
 ```bash
-mssql server list --format json --pretty
+mssql server list --format json
 ```
 
 ### Set the default server
@@ -123,7 +123,7 @@ Tables default to the `dbo` schema if not specified. Use `schema.table` notation
 
 ## Output Format
 
-All commands support `--format json` (compact, default) or `--format text` (human-readable tables). Add `--pretty` for indented JSON.
+All commands support `--format json` (compact, default) or `--format text` (human-readable tables). The `sql`, `sql-dangerous`, and `schema` commands also support `--pretty` for indented JSON.
 
 Exit codes: `0` = success, `1` = error. Errors are written to stderr as JSON.
 
